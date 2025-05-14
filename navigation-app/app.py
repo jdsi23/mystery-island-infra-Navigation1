@@ -44,11 +44,12 @@ def home():
     <body style='text-align:center;'>
         <h1>🗺️ Welcome to Mystery Island</h1>
         <div class="map-container">
-            <img src='/static/map.png' alt='Mystery Island Map' style='width:90%;'>
-            <img src='/static/icon_volcano.png' class='icon' style='top:70px; left:120px;' onclick="getDirections('volcano')">
-            <img src='/static/icon_maze.png' class='icon' style='top:220px; left:60px;' onclick="getDirections('maze')">
-            <img src='/static/icon_boat.png' class='icon' style='top:400px; left:220px;' onclick="getDirections('boat')">
-            <img src='/static/icon_resort.png' class='icon' style='top:100px; left:320px;' onclick="getDirections('resort')">
+           <img src='https://mystery-island-bucket-1bb6a92a.s3.amazonaws.com/map.png' alt='Mystery Island Map' style='width:90%;'>
+            <img src='https://mystery-island-bucket-1bb6a92a.s3.amazonaws.com/icon_volcano.png' class='icon' style='top:70px; left:120px;' onclick="getDirections('volcano')">
+            <img src='https://mystery-island-bucket-1bb6a92a.s3.amazonaws.com/icon_maze.png' class='icon' style='top:220px; left:60px;' onclick="getDirections('maze')">
+            <img src='https://mystery-island-bucket-1bb6a92a.s3.amazonaws.com/icon_boat.png' class='icon' style='top:400px; left:220px;' onclick="getDirections('boat')">
+            <img src='https://mystery-island-bucket-1bb6a92a.s3.amazonaws.com/icon_resort.png' class='icon' style='top:100px; left:320px;' onclick="getDirections('resort')">
+
         </div>
         <div id="directions"></div>
     </body>
