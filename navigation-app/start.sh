@@ -1,5 +1,3 @@
-# navigation-app/start.sh
-
 #!/bin/bash
 
 # Start Nginx
