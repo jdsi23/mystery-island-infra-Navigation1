@@ -19,6 +19,9 @@ echo "📤 Pushing image to ECR..."
 docker push $ECR_URL
 cd ..
 
+echo "📦 Installing Terraform..."
+./terra.sh
+
 echo "📦 Deploying infrastructure with Terraform..."
 cd Deploy || exit
 terraform init -input=false
