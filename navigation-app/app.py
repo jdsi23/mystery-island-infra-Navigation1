@@ -1,7 +1,7 @@
-# navigation-app/app.py
-
 from flask import Flask, request, jsonify
-app = Flask(__name__, static_url_path='/static')
+
+# Ensure static files are served correctly
+app = Flask(__name__, static_url_path='/static', static_folder='static')
 
 @app.route("/")
 def home():
@@ -57,7 +57,7 @@ def home():
 
 @app.route("/status")
 def status():
-    return {"status": "running", "service": "navigation"}
+    return jsonify({"status": "running", "service": "navigation"})
 
 @app.route("/directions")
 def directions():
