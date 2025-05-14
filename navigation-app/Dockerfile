@@ -2,7 +2,7 @@
 
 FROM python:3.11-slim
 
-# Install nginx
+# Install Nginx
 RUN apt-get update && \
     apt-get install -y nginx && \
     apt-get clean && \
@@ -11,20 +11,21 @@ RUN apt-get update && \
 # Set working directory
 WORKDIR /app
 
-# Copy application files
+# Copy application files and static assets
 COPY . /app
+COPY static/ /app/static/
 
 # Install Python dependencies
 RUN pip install flask
 
-# Copy nginx config
+# Copy Nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Expose port 80
+# Expose port 80 for Flask app (proxied by Nginx)
 EXPOSE 80
 
-# Make start script executable
+# Make startup script executable
 RUN chmod +x start.sh
 
-# Start the app
+# Start both Nginx and Flask app
 CMD ["./start.sh"]
