@@ -1,18 +1,24 @@
-# navigation-app/Dockerfile
-
 FROM python:3.11-slim
 
 # Install nginx
 RUN apt-get update && \
-    apt-get install -y nginx && \
+    apt-get install -y nginx unzip curl && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Set working directory
+# Install Terraform
+WORKDIR /tmp
+RUN curl -O https://releases.hashicorp.com/terraform/1.7.5/terraform_1.7.5_linux_amd64.zip && \
+    unzip terraform_1.7.5_linux_amd64.zip && \
+    mv terraform /usr/local/bin/ && \
+    rm terraform_1.7.5_linux_amd64.zip
+
+# Set app directory
 WORKDIR /app
 
-# Copy application files
+# Copy app files
 COPY . /app
+COPY static/ /app/static/
 
 # Install Python dependencies
 RUN pip install flask
@@ -20,11 +26,11 @@ RUN pip install flask
 # Copy nginx config
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Expose port 80
+# Expose app port
 EXPOSE 80
 
-# Make start script executable
+# Make script executable
 RUN chmod +x start.sh
 
-# Start the app
+# Start app
 CMD ["./start.sh"]
