@@ -34,6 +34,16 @@ resource "aws_subnet" "mystery-island-subnet" {
   }
 }
 
+resource "aws_subnet" "mystery-island-subnet-b" {
+  vpc_id            = aws_vpc.mystery-island-vpc.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "us-east-1b"
+
+  tags = {
+    Name = "mystery-island-subnet-b"
+  }
+}
+
 resource "aws_internet_gateway" "mystery-island-gateway" {
   vpc_id = aws_vpc.mystery-island-vpc.id
 
@@ -57,6 +67,11 @@ resource "aws_route_table" "mystery-island-rt" {
 
 resource "aws_route_table_association" "mystery-island-rt-assoc" {
   subnet_id      = aws_subnet.mystery-island-subnet.id
+  route_table_id = aws_route_table.mystery-island-rt.id
+}
+
+resource "aws_route_table_association" "mystery-island-rt-assoc-b" {
+  subnet_id      = aws_subnet.mystery-island-subnet-b.id
   route_table_id = aws_route_table.mystery-island-rt.id
 }
 
@@ -231,7 +246,10 @@ resource "aws_lb" "mystery-island-alb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.mystery-island-sg.id]
-  subnets            = [aws_subnet.mystery-island-subnet.id]
+  subnets            = [
+    aws_subnet.mystery-island-subnet.id,
+    aws_subnet.mystery-island-subnet-b.id
+  ]
 }
 
 # Target Group
@@ -271,8 +289,8 @@ resource "aws_ecs_task_definition" "mysteryislandtaskdef" {
       essential = true
       portMappings = [
         {
-          containerPort = 80
-          hostPort      = 80
+          containerPort = 80,
+          hostPort      = 80,
           protocol      = "tcp"
         }
       ]
@@ -289,7 +307,10 @@ resource "aws_ecs_service" "mysteryislandservice" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = [aws_subnet.mystery-island-subnet.id]
+    subnets = [
+      aws_subnet.mystery-island-subnet.id,
+      aws_subnet.mystery-island-subnet-b.id
+    ]
     security_groups = [aws_security_group.mystery-island-sg.id]
     assign_public_ip = true
   }
