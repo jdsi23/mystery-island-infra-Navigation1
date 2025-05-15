@@ -46,16 +46,16 @@ def home():
         <div class="map-container">
             <img src='https://i.postimg.cc/7hTkGYNG/map.png' alt='Mystery Island Map' style='width:90%;'>
             <img src='https://i.postimg.cc/HswLBBQJ/icon-volcano.png' class='icon'
-                title="Volcano Ride"
+                title="🔥 Ashen Secrets 🔥"
                 style='top:70px; left:120px;' onclick="getDirections('volcano')">
             <img src='https://i.postimg.cc/nr8H1DrY/icon-maze.png' class='icon'
-                title="Maze Garden"
+                title="🌿 Maze of Whisper 🌿"
                 style='top:220px; left:60px;' onclick="getDirections('maze')">
            <img src='https://i.postimg.cc/J7B0B105/icon-boat.png' class='icon'
-                title="Pirate Ship"
+                title="🚤 The Forgotten Current 🚤"
                 style='top:400px; left:220px;' onclick="getDirections('boat')">
             <img src='https://i.postimg.cc/QdNjSs8P/icon-resort.png' class='icon'
-                title="Resort Towers"
+                title="🌺 Secrets of the Sands 🌺"
                 style='top:100px; left:320px;' onclick="getDirections('resort')">
         </div>
         <div id="directions"></div>
