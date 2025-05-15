@@ -45,10 +45,18 @@ def home():
         <h1>🗺️ Welcome to Mystery Island</h1>
         <div class="map-container">
             <img src='https://i.postimg.cc/7hTkGYNG/map.png' alt='Mystery Island Map' style='width:90%;'>
-            <img src='https://i.postimg.cc/HswLBBQJ/icon-volcano.png' class='icon' style='top:70px; left:120px;' onclick="getDirections('volcano')">
-            <img src='https://i.postimg.cc/nr8H1DrY/icon-maze.png' class='icon' style='top:220px; left:60px;' onclick="getDirections('maze')">
-            <img src='https://i.postimg.cc/J7B0B105/icon-boat.png' class='icon' style='top:400px; left:220px;' onclick="getDirections('boat')">
-            <img src='https://i.postimg.cc/QdNjSs8P/icon-resort.png' class='icon' style='top:100px; left:320px;' onclick="getDirections('resort')">
+            <img src='https://i.postimg.cc/HswLBBQJ/icon-volcano.png' class='icon'
+                title="Volcano Ride"
+                style='top:70px; left:120px;' onclick="getDirections('volcano')">
+            <img src='https://i.postimg.cc/nr8H1DrY/icon-maze.png' class='icon'
+                title="Maze Garden"
+                style='top:220px; left:60px;' onclick="getDirections('maze')">
+           <img src='https://i.postimg.cc/J7B0B105/icon-boat.png' class='icon'
+                title="Pirate Ship"
+                style='top:400px; left:220px;' onclick="getDirections('boat')">
+            <img src='https://i.postimg.cc/QdNjSs8P/icon-resort.png' class='icon'
+                title="Resort Towers"
+                style='top:100px; left:320px;' onclick="getDirections('resort')">
         </div>
         <div id="directions"></div>
     </body>
