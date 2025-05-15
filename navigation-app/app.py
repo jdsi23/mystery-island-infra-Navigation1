@@ -18,8 +18,13 @@ def home():
                 position: absolute;
                 width: 40px;
                 cursor: pointer;
+                transition: transform 0.2s ease;
             }
-            #directions {
+            .icon:hover {
+                transform: scale(1.3);
+                z-index: 2;
+             }
+             #directions {
                 margin-top: 20px;
                 font-family: sans-serif;
                 padding: 10px;
