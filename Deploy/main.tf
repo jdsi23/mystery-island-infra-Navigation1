@@ -102,24 +102,18 @@ resource "aws_security_group" "mystery-island-sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 5001
+    to_port     = 5001
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-# --- EC2 Instance (Legacy for Testing) ---
-resource "aws_instance" "mystery-island-web" {
-  ami                         = "ami-0c02fb55956c7d316"
-  instance_type               = "t2.medium"
-  subnet_id                   = aws_subnet.mystery-island-subnet.id
-  vpc_security_group_ids      = [aws_security_group.mystery-island-sg.id]
-  associate_public_ip_address = true
-
-  tags = {
-    Name = "mystery-island-web"
   }
 }
 
@@ -208,18 +202,18 @@ module "iam_user" {
 }
 
 # --- ECS Fargate Deployment: Navigation App ---
-
-# ECR Repository
 resource "aws_ecr_repository" "mystery-island-ecr" {
   name = "mystery-island-navigation"
 }
 
-# ECS Cluster
+resource "aws_ecr_repository" "mystery-island-chatbot-ecr" {
+  name = "mystery-island-chatbot"
+}
+
 resource "aws_ecs_cluster" "mystery-island-ecs-cluster" {
   name = "mystery-island-cluster"
 }
 
-# IAM Role for ECS Task Execution
 resource "aws_iam_role" "mysteryislandtaskrole" {
   name = "mysteryislandtaskrole"
 
@@ -240,7 +234,6 @@ resource "aws_iam_role_policy_attachment" "mysteryislandtaskpolicy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# ALB
 resource "aws_lb" "mystery-island-alb" {
   name               = "mystery-island-alb"
   internal           = false
@@ -252,7 +245,6 @@ resource "aws_lb" "mystery-island-alb" {
   ]
 }
 
-# Target Group
 resource "aws_lb_target_group" "mysteryislandtg" {
   name     = "mysteryislandtg"
   port     = 80
@@ -261,7 +253,14 @@ resource "aws_lb_target_group" "mysteryislandtg" {
   target_type = "ip"
 }
 
-# Listener
+resource "aws_lb_target_group" "mysteryislandchatbottg" {
+  name     = "mysteryislandchatbottg"
+  port     = 5001
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.mystery-island-vpc.id
+  target_type = "ip"
+}
+
 resource "aws_lb_listener" "mysteryislandlistener" {
   load_balancer_arn = aws_lb.mystery-island-alb.arn
   port              = 80
@@ -273,7 +272,21 @@ resource "aws_lb_listener" "mysteryislandlistener" {
   }
 }
 
-# ECS Task Definition
+resource "aws_lb_listener_rule" "chatbot_rule" {
+  listener_arn = aws_lb_listener.mysteryislandlistener.arn
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.mysteryislandchatbottg.arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/chat"]
+    }
+  }
+}
+
 resource "aws_ecs_task_definition" "mysteryislandtaskdef" {
   family                   = "mystery-island-navigation"
   network_mode             = "awsvpc"
@@ -298,7 +311,30 @@ resource "aws_ecs_task_definition" "mysteryislandtaskdef" {
   ])
 }
 
-# ECS Service
+resource "aws_ecs_task_definition" "mysteryislandchatbottaskdef" {
+  family                   = "mystery-island-chatbot"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "512"
+  memory                   = "1024"
+  execution_role_arn       = aws_iam_role.mysteryislandtaskrole.arn
+
+  container_definitions = jsonencode([
+    {
+      name      = "chatbot"
+      image     = "${aws_ecr_repository.mystery-island-chatbot-ecr.repository_url}:latest"
+      essential = true
+      portMappings = [
+        {
+          containerPort = 5001,
+          hostPort      = 5001,
+          protocol      = "tcp"
+        }
+      ]
+    }
+  ])
+}
+
 resource "aws_ecs_service" "mysteryislandservice" {
   name            = "mysteryislandservice"
   cluster         = aws_ecs_cluster.mystery-island-ecs-cluster.id
@@ -322,4 +358,29 @@ resource "aws_ecs_service" "mysteryislandservice" {
   }
 
   depends_on = [aws_lb_listener.mysteryislandlistener]
+}
+
+resource "aws_ecs_service" "mysteryislandchatbotservice" {
+  name            = "mysteryislandchatbotservice"
+  cluster         = aws_ecs_cluster.mystery-island-ecs-cluster.id
+  task_definition = aws_ecs_task_definition.mysteryislandchatbottaskdef.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets = [
+      aws_subnet.mystery-island-subnet.id,
+      aws_subnet.mystery-island-subnet-b.id
+    ]
+    security_groups = [aws_security_group.mystery-island-sg.id]
+    assign_public_ip = true
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.mysteryislandchatbottg.arn
+    container_name   = "chatbot"
+    container_port   = 5001
+  }
+
+  depends_on = [aws_lb_listener_rule.chatbot_rule]
 }
